@@ -6,7 +6,7 @@ setup(
     description='Python library for cybersecurity',
     author='RAH Code',
     author_email='contacto@rahcode.com',
-    url='https://dev.rahcode.com/ShieldCipher',
+    url='https://rah-code-dev.github.io/ShieldCipher',
     license='MIT License',
     packages=find_packages(),
     install_requires=[
