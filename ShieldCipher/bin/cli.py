@@ -52,10 +52,31 @@ def msc():
 def encrypt(args):
     if not args:
         msc()
-        return "Usage: ShieldCipher crypt \"text\""
+        return "Usage: ShieldCipher encrypt \"text\" <options>"
         
     secret = getpass()
-    encrypted_text = sc_encrypt(secret, args[0])
+
+    algorithm = None
+    length = None
+    
+    if "-a" in args:
+        algorithm = args[args.index("-a") + 1]
+    elif "--algorithm" in args:
+        algorithm = args[args.index("--algorithm") + 1]
+
+    if "-l" in args:
+        length = args[args.index("-l") + 1]
+    elif "--length" in args:
+        length = args[args.index("--length") + 1]
+
+    if algorithm and length:
+        encrypted_text = sc_encrypt(secret, args[0], algorithm, int(length))
+    elif algorithm:
+        encrypted_text = sc_encrypt(secret, args[0], algorithm)
+    elif length:
+        encrypted_text = sc_encrypt(secret, args[0], length=int(length))
+    else:
+        encrypted_text = sc_encrypt(secret, args[0])
 
     encrypted_text_algorithm = encrypted_text[0]
     encrypted_text_length = str(encrypted_text[1])
@@ -67,7 +88,7 @@ def encrypt(args):
 def decrypt(args):
     if not args:
         msc()
-        return "Usage: ShieldCipher crypt \"text\""
+        return "Usage: ShieldCipher decrypt \"text\""
         
     secret = getpass()
     encrypted_text = args[0]
@@ -98,10 +119,12 @@ def main():
         msc()
         print("Usage: ShieldCipher <action> [args]")
         print("Actions:")
-        print("  encrypt        Encrypts the provided text")
-        print("  decrypt      Decrypts the provided text")
-        print("  --version    Displays the version information")
-        print("  --help       Displays this help message")
+        print("  encrypt \"text\" <options>        Encrypts the provided text")
+        print("    -a --algorithm        Choose the algorithm")
+        print("    -l --length        Choose the length in bits")
+        print("  decrypt \"text\"        Decrypts the provided text")
+        print("  --version        Displays the version information")
+        print("  --help        Displays this help message")
         sys.exit(0)
 
     args = sys.argv[2:]

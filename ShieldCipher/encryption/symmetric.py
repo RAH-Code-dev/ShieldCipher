@@ -59,12 +59,14 @@ def encrypt(secret, message, algorithm = 'aes', length = 256):
     elif length == 128:
         key = compute_key(secret, salt, 16)
     else:
-        return length + ' is not supported as length'
+        print(str(length) + ' is not supported as length')
+        return None
 
     if algorithm == 'aes':
         encrypted_text = encrypt_aes(key, message)
     else:
-        return algorithm + ' is not supported as algorithm'
+        print(algorithm + ' is not supported as algorithm')
+        return None
 
     return (algorithm, length, salt, encrypted_text)
 
@@ -76,11 +78,13 @@ def decrypt(secret, ciphertext, salt, algorithm = 'aes', length = 256):
     elif length == 128:
         key = compute_key(secret, salt, 16)
     else:
-        return str(length) + ' is not supported as length'
+        print(str(length) + ' is not supported as length')
+        return None
 
     if algorithm == 'aes':
         decrypted_text = decrypt_aes(key, ciphertext)
     else:
-        return algorithm + ' is not supported as algorithm'
+        print(algorithm + ' is not supported as algorithm')
+        return None
 
     return decrypted_text
