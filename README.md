@@ -16,22 +16,10 @@ To use the ShieldCipher Python Library from PyPi, you can follow these installat
 
 To use the ShieldCipher Python Library from GitHub, you can follow these installation steps:
 
-1. Clone the repository:
+1. Install the library from github:
 
    ```bash
-   git clone https://github.com/RAH-Code-dev/ShieldCipher.git
-   ```
-
-2. Change into the ShieldCipher directory:
-
-   ```bash
-   cd ShieldCipher
-   ```
-
-3. Install the library:
-
-   ```bash
-   pip install .
+   pip install git+https://github.com/RAH-Code-dev/ShieldCipher.git
    ```
 
 ## Usage

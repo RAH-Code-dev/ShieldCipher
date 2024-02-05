@@ -30,7 +30,7 @@ pip install -r requirements.txt
 4. Build and install the library:
 
 ```bash
-pip install .
+python setup.py install
 ```
 
 Now you have successfully built and installed the ShieldCipher Python Library from source.
