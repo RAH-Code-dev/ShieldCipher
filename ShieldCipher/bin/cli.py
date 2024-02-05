@@ -50,6 +50,15 @@ def msc():
     print("\n@milosnowcat\n")
 
 def encrypt(args):
+    """
+    The `encrypt` function takes in a text and optional encryption options, encrypts the text using the
+    ShieldCipher algorithm, and returns the encrypted text along with the algorithm, length, salt, and
+    message.
+    
+    :param args: The `args` parameter is a list of command line arguments passed to the `encrypt`
+    function
+    :return: The function `encrypt` returns a string that represents the encrypted text.
+    """
     if not args:
         msc()
         return "Usage: ShieldCipher encrypt \"text\" <options>"
@@ -86,6 +95,14 @@ def encrypt(args):
     return encrypted_text_algorithm + '$' + encrypted_text_length + '$' + encrypted_text_salt + '$' + encrypted_text_msg
 
 def decrypt(args):
+    """
+    The `decrypt` function takes an encrypted text and decrypts it using the ShieldCipher algorithm.
+    
+    :param args: The `args` parameter is a list of arguments passed to the `decrypt` function. In this
+    case, it is expected to contain a single argument, which is the encrypted text that needs to be
+    decrypted
+    :return: the decrypted text.
+    """
     if not args:
         msc()
         return "Usage: ShieldCipher decrypt \"text\""
@@ -104,6 +121,10 @@ def decrypt(args):
     return decrypted_text
 
 def main():
+    """
+    The main function is a command-line interface for the ShieldCipher program, allowing users to
+    encrypt and decrypt text using different algorithms and options.
+    """
     if len(sys.argv) < 2:
         msc()
         print("Usage: --help")
