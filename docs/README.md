@@ -5,7 +5,7 @@ Welcome to the documentation for the ShieldCipher Python Library. This library p
 - [Introduction](./introduction/overview.md)
 - [User Guide](./user-guide/usage.md)
 - [Examples](./examples/example-program.md)
-- [Language Reference](./library-reference/functions.md)
+- [Library Reference](./library-reference/functions.md)
 - [Compilation](./building/building-from-source.md)
 - [Contribution](./contributing/contribution-guidelines.md)
 - [License](./license/info.md)
