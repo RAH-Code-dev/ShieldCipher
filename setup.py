@@ -10,7 +10,7 @@ setup(
     license='MIT License',
     packages=find_packages(),
     install_requires=[
-        'pycryptodome==3.19.1',
+        'pycryptodome>=3.19.1',
     ],
     entry_points={
         'console_scripts': [
