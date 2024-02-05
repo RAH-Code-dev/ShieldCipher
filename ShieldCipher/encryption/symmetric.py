@@ -62,7 +62,7 @@ def compute_key(secret, salt, length = 32):
     key = PBKDF2(password, salt, length, count=1000000, hmac_hash_module=SHA512)
     return key
 
-def encrypt(secret, message, algorithm = 'aes', length = 256):
+def encrypt(secret, message, algorithm = 'AES', length = 256):
     """
     The function encrypts a message using a specified algorithm and key length, and returns the
     algorithm, key length, salt, and encrypted text.
@@ -71,7 +71,7 @@ def encrypt(secret, message, algorithm = 'aes', length = 256):
     a secret value that should be known only to the sender and receiver of the encrypted message
     :param message: The `message` parameter is the text or data that you want to encrypt
     :param algorithm: The algorithm parameter specifies the encryption algorithm to be used. In this
-    case, the only supported algorithm is 'aes', which stands for Advanced Encryption Standard, defaults
+    case, the only supported algorithm is 'AES', which stands for Advanced Encryption Standard, defaults
     to aes (optional)
     :param length: The "length" parameter specifies the length of the encryption key in bits. It can be
     either 256, 192, or 128, defaults to 256 (optional)
@@ -90,7 +90,7 @@ def encrypt(secret, message, algorithm = 'aes', length = 256):
         print(str(length) + ' is not supported as length')
         return None
 
-    if algorithm == 'aes':
+    if algorithm == 'AES':
         encrypted_text = encrypt_aes(key, message)
     else:
         print(algorithm + ' is not supported as algorithm')
@@ -98,7 +98,7 @@ def encrypt(secret, message, algorithm = 'aes', length = 256):
 
     return (algorithm, length, salt, encrypted_text)
 
-def decrypt(secret, ciphertext, salt, algorithm = 'aes', length = 256):
+def decrypt(secret, ciphertext, salt, algorithm = 'AES', length = 256):
     """
     The function decrypts a ciphertext using a secret key and specified encryption algorithm and key
     length.
@@ -110,7 +110,7 @@ def decrypt(secret, ciphertext, salt, algorithm = 'aes', length = 256):
     :param salt: The salt is a random value that is used as an additional input to the key derivation
     function. It adds randomness to the process of generating the encryption key, making it more secure
     :param algorithm: The algorithm parameter specifies the encryption algorithm to be used for
-    decryption. In this case, the only supported algorithm is 'aes', which stands for Advanced
+    decryption. In this case, the only supported algorithm is 'AES', which stands for Advanced
     Encryption Standard, defaults to aes (optional)
     :param length: The length parameter specifies the length of the encryption key to be used. It can
     have three possible values: 256, 192, or 128. These values correspond to the key lengths of 256
@@ -127,7 +127,7 @@ def decrypt(secret, ciphertext, salt, algorithm = 'aes', length = 256):
         print(str(length) + ' is not supported as length')
         return None
 
-    if algorithm == 'aes':
+    if algorithm == 'AES':
         decrypted_text = decrypt_aes(key, ciphertext)
     else:
         print(algorithm + ' is not supported as algorithm')
