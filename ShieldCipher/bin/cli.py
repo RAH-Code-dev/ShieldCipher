@@ -57,9 +57,12 @@ def encrypt(args):
     secret = getpass()
     encrypted_text = sc_encrypt(secret, args[0])
 
-    encrypted_text_hex = binascii.hexlify(encrypted_text).decode('utf-8')
+    encrypted_text_algorithm = encrypted_text[0]
+    encrypted_text_length = str(encrypted_text[1])
+    encrypted_text_salt = binascii.hexlify(encrypted_text[2]).decode('utf-8')
+    encrypted_text_msg = binascii.hexlify(encrypted_text[3]).decode('utf-8')
 
-    return encrypted_text_hex
+    return encrypted_text_algorithm + '$' + encrypted_text_length + '$' + encrypted_text_salt + '$' + encrypted_text_msg
 
 def decrypt(args):
     if not args:
@@ -67,9 +70,15 @@ def decrypt(args):
         return "Usage: ShieldCipher crypt \"text\""
         
     secret = getpass()
-    ciphertext_hex = args[0]
-    ciphertext = binascii.unhexlify(ciphertext_hex.encode('utf-8'))
-    decrypted_text = sc_decrypt(secret, ciphertext)
+    encrypted_text = args[0]
+
+    encrypted = encrypted_text.split('$')
+    algorithm = encrypted[0]
+    length = int(encrypted[1])
+    salt = binascii.unhexlify(encrypted[2].encode('utf-8'))
+    hashed = binascii.unhexlify(encrypted[3].encode('utf-8'))
+
+    decrypted_text = sc_decrypt(secret, hashed, salt, algorithm, length)
 
     return decrypted_text
 

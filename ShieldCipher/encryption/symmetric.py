@@ -3,7 +3,7 @@ from Crypto.Hash import SHA512
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Random import get_random_bytes
 
-def encrypt_aes256(key, message):
+def encrypt_aes(key, message):
     """
     The function encrypts a message using the AES encryption algorithm with a given key.
     
@@ -19,7 +19,7 @@ def encrypt_aes256(key, message):
     ciphertext, tag = cipher.encrypt_and_digest(message.encode('utf-8'))
     return nonce + ciphertext + tag
 
-def decrypt_aes256(key, ciphertext):
+def decrypt_aes(key, ciphertext):
     """
     The function `decryptPassword` takes a key and a ciphertext as input, decrypts the ciphertext using
     AES encryption, and returns the plaintext password if the decryption is successful, otherwise it
@@ -44,22 +44,43 @@ def decrypt_aes256(key, ciphertext):
     except ValueError:
         return None
 
-def compute_key(secret, salt):
+def compute_key(secret, salt, length = 32):
     password = secret.encode()
-    key = PBKDF2(password, salt, 32, count=1000000, hmac_hash_module=SHA512)
+    key = PBKDF2(password, salt, length, count=1000000, hmac_hash_module=SHA512)
     return key
 
-def encrypt(secret, message):
+def encrypt(secret, message, algorithm = 'aes', length = 256):
     salt = get_random_bytes(16)
-    key = compute_key(secret, salt)
-    encrypted_text = encrypt_aes256(key, message)
 
-    return salt + encrypted_text
+    if length == 256:
+        key = compute_key(secret, salt)
+    elif length == 192:
+        key = compute_key(secret, salt, 24)
+    elif length == 128:
+        key = compute_key(secret, salt, 16)
+    else:
+        return length + ' is not supported as length'
 
-def decrypt(secret, ciphertext):
-    salt = ciphertext[:16]
-    key = compute_key(secret, salt)
+    if algorithm == 'aes':
+        encrypted_text = encrypt_aes(key, message)
+    else:
+        return algorithm + ' is not supported as algorithm'
 
-    decrypted_text = decrypt_aes256(key, ciphertext[16:])
+    return (algorithm, length, salt, encrypted_text)
+
+def decrypt(secret, ciphertext, salt, algorithm = 'aes', length = 256):
+    if length == 256:
+        key = compute_key(secret, salt)
+    elif length == 192:
+        key = compute_key(secret, salt, 24)
+    elif length == 128:
+        key = compute_key(secret, salt, 16)
+    else:
+        return str(length) + ' is not supported as length'
+
+    if algorithm == 'aes':
+        decrypted_text = decrypt_aes(key, ciphertext)
+    else:
+        return algorithm + ' is not supported as algorithm'
 
     return decrypted_text
