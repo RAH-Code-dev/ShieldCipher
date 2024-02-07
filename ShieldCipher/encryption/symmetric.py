@@ -98,7 +98,7 @@ def encrypt(secret, message, algorithm = 'AES', length = 256):
 
     return (algorithm, length, salt, encrypted_text)
 
-def decrypt(secret, ciphertext, salt, algorithm = 'AES', length = 256):
+def decrypt(secret, algorithm, length, salt, ciphertext):
     """
     The function decrypts a ciphertext using a secret key and specified encryption algorithm and key
     length.
