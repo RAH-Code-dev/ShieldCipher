@@ -67,6 +67,7 @@ def encrypt(args):
 
     algorithm = None
     length = None
+    split = '$'
     
     if "-a" in args:
         algorithm = args[args.index("-a") + 1]
@@ -77,6 +78,11 @@ def encrypt(args):
         length = args[args.index("-l") + 1]
     elif "--length" in args:
         length = args[args.index("--length") + 1]
+    
+    if "-s" in args:
+        split = args[args.index("-s") + 1]
+    elif "--split" in args:
+        split = args[args.index("--split") + 1]
 
     if algorithm and length:
         encrypted_text = sc_encrypt(secret, args[0], algorithm, int(length))
@@ -92,7 +98,7 @@ def encrypt(args):
     encrypted_text_salt = binascii.hexlify(encrypted_text[2]).decode('utf-8')
     encrypted_text_msg = binascii.hexlify(encrypted_text[3]).decode('utf-8')
 
-    return encrypted_text_algorithm + '$' + encrypted_text_length + '$' + encrypted_text_salt + '$' + encrypted_text_msg
+    return encrypted_text_algorithm + split + encrypted_text_length + split + encrypted_text_salt + split + encrypted_text_msg
 
 def decrypt(args):
     """
@@ -105,12 +111,18 @@ def decrypt(args):
     """
     if not args:
         msc()
-        return "Usage: ShieldCipher decrypt \"text\""
+        return "Usage: ShieldCipher decrypt \"text\" <options>"
         
     secret = getpass()
     encrypted_text = args[0]
+    split = '$'
 
-    encrypted = encrypted_text.split('$')
+    if "-s" in args:
+        split = args[args.index("-s") + 1]
+    elif "--split" in args:
+        split = args[args.index("--split") + 1]
+
+    encrypted = encrypted_text.split(split)
     algorithm = encrypted[0]
     length = int(encrypted[1])
     salt = binascii.unhexlify(encrypted[2].encode('utf-8'))
@@ -143,7 +155,9 @@ def main():
         print("  encrypt \"text\" <options>        Encrypts the provided text")
         print("    -a --algorithm        Choose the algorithm")
         print("    -l --length        Choose the length in bits")
+        print("    -s --split        Choose the character used for splitting the chain")
         print("  decrypt \"text\"        Decrypts the provided text")
+        print("    -s --split        Choose the character used for splitting the chain")
         print("  --version        Displays the version information")
         print("  --help        Displays this help message")
         sys.exit(0)
