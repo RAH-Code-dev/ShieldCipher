@@ -128,7 +128,7 @@ def decrypt(args):
     salt = binascii.unhexlify(encrypted[2].encode('utf-8'))
     hashed = binascii.unhexlify(encrypted[3].encode('utf-8'))
 
-    decrypted_text = sc_decrypt(secret, hashed, salt, algorithm, length)
+    decrypted_text = sc_decrypt(secret, algorithm, length, salt, hashed)
 
     return decrypted_text
 
