@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
     name='ShieldCipher',
-    version='1.0.3',
+    version='1.2.0',
     description='Python library for cybersecurity',
     long_description=long_description,
     long_description_content_type="text/markdown",

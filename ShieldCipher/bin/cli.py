@@ -2,6 +2,7 @@ import sys
 from ShieldCipher.encryption.symmetric import encrypt as sc_encrypt, decrypt as sc_decrypt
 from getpass import getpass
 import binascii
+import os
 
 def msc():
     print("                     .                    .                           ")
@@ -49,7 +50,7 @@ def msc():
     print("                .====.    -++=:         =+==-    --==.                ")
     print("\n@milosnowcat\n")
 
-def encrypt(args):
+def encrypt(args, secret = None):
     """
     The `encrypt` function takes in a text and optional encryption options, encrypts the text using the
     ShieldCipher algorithm, and returns the encrypted text along with the algorithm, length, salt, and
@@ -63,7 +64,8 @@ def encrypt(args):
         msc()
         return "Usage: ShieldCipher encrypt \"text\" <options>"
         
-    secret = getpass()
+    if not secret:
+        secret = getpass()
 
     algorithm = None
     length = None
@@ -100,7 +102,32 @@ def encrypt(args):
 
     return encrypted_text_algorithm + split + encrypted_text_length + split + encrypted_text_salt + split + encrypted_text_msg
 
-def decrypt(args):
+def encrypt_file(args):
+    if not args:
+        msc()
+        return "Usage: ShieldCipher encrypt -f /path/to/file <options>"
+
+    secret = getpass()
+
+    file_path = args[0]
+    file_name = os.path.basename(file_path)
+    args[0] = file_name
+    encrypted_file_name = encrypt(args, secret)
+
+    encrypted_file_path = encrypted_file_name + '.MShieldCipher'
+
+    with open(file_path, 'rb') as file:
+        file_content = binascii.hexlify(file.read()).decode('utf-8')
+
+    args[0] = file_content
+    encrypted_file_content = encrypt(args, secret)
+
+    with open(encrypted_file_path, 'w') as encrypted_file:
+        encrypted_file.write(encrypted_file_content)
+
+    return f"File saved in {encrypted_file_path}"
+
+def decrypt(args, secret = None):
     """
     The `decrypt` function takes an encrypted text and decrypts it using the ShieldCipher algorithm.
     
@@ -112,8 +139,10 @@ def decrypt(args):
     if not args:
         msc()
         return "Usage: ShieldCipher decrypt \"text\" <options>"
-        
-    secret = getpass()
+
+    if not secret:
+        secret = getpass()
+
     encrypted_text = args[0]
     split = '$'
 
@@ -132,6 +161,29 @@ def decrypt(args):
 
     return decrypted_text
 
+def decrypt_file(args):
+    if not args:
+        msc()
+        return "Usage: ShieldCipher decrypt -f /path/to/file <options>"
+
+    secret = getpass()
+
+    encrypted_file_path = args[0]
+    encrypted_file_name = os.path.basename(encrypted_file_path)
+    args[0] = encrypted_file_name[:-14]
+    decrypted_file_path = decrypt(args, secret)
+
+    with open(encrypted_file_path, 'r') as encrypted_file:
+        encrypted_file_content = encrypted_file.read()
+
+    args[0] = encrypted_file_content
+    decrypted_file_content = decrypt(args, secret)
+
+    with open(decrypted_file_path, 'wb') as decrypted_file:
+        decrypted_file.write(binascii.unhexlify(decrypted_file_content))
+
+    return f"File saved in {decrypted_file_path}"
+
 def main():
     """
     The main function is a command-line interface for the ShieldCipher program, allowing users to
@@ -146,17 +198,19 @@ def main():
 
     if action == "--version":
         msc()
-        print("ShieldCipher Version 1.0.0")
+        print("ShieldCipher Version 1.2.0")
         sys.exit(0)
     elif action == "--help":
         msc()
         print("Usage: ShieldCipher <action> [args]")
         print("Actions:")
+        print("  encrypt -f /path/to/file <options>        Encrypts the provided file")
         print("  encrypt \"text\" <options>        Encrypts the provided text")
         print("    -a --algorithm        Choose the algorithm")
         print("    -l --length        Choose the length in bits")
         print("    -s --split        Choose the character used for splitting the chain")
-        print("  decrypt \"text\"        Decrypts the provided text")
+        print("  decrypt -f /path/to/file <options>        Decrypts the provided file")
+        print("  decrypt \"text\" <options>        Decrypts the provided text")
         print("    -s --split        Choose the character used for splitting the chain")
         print("  --version        Displays the version information")
         print("  --help        Displays this help message")
@@ -165,10 +219,16 @@ def main():
     args = sys.argv[2:]
 
     if action == "encrypt":
-        result = encrypt(args)
+        if args[0] == "-f":
+            result = encrypt_file(args[1:])
+        else:
+            result = encrypt(args)
         print(result)
     elif action == "decrypt":
-        result = decrypt(args)
+        if args[0] == "-f":
+            result = decrypt_file(args[1:])
+        else:
+            result = decrypt(args)
         print(result)
     else:
         print("Invalid action. Use '--help'.")
