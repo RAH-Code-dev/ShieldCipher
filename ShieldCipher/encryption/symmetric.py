@@ -3,7 +3,7 @@ from Crypto.Hash import SHA512
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Random import get_random_bytes
 
-def encrypt_aes(key, message):
+def encrypt_aes(key, message, is_byte = False):
     """
     The function encrypts a message using the AES encryption algorithm with a given key.
     
@@ -16,10 +16,16 @@ def encrypt_aes(key, message):
     """
     cipher = AES.new(key, AES.MODE_EAX)
     nonce = cipher.nonce
-    ciphertext, tag = cipher.encrypt_and_digest(message.encode('utf-8'))
+
+    if is_byte:
+        msg = message
+    else:
+        msg = message.encode('utf-8')
+
+    ciphertext, tag = cipher.encrypt_and_digest(msg)
     return nonce + ciphertext + tag
 
-def decrypt_aes(key, ciphertext):
+def decrypt_aes(key, ciphertext, is_byte = False):
     """
     The function `decryptPassword` takes a key and a ciphertext as input, decrypts the ciphertext using
     AES encryption, and returns the plaintext password if the decryption is successful, otherwise it
@@ -40,7 +46,13 @@ def decrypt_aes(key, ciphertext):
     plaintext = cipher.decrypt(ciphertext)
     try:
         cipher.verify(tag)
-        return plaintext.decode('utf-8')
+
+        if is_byte:
+            msg = plaintext
+        else:
+            msg = plaintext.decode('utf-8')
+
+        return msg
     except ValueError:
         return None
 
@@ -62,7 +74,7 @@ def compute_key(secret, salt, length = 32):
     key = PBKDF2(password, salt, length, count=1000000, hmac_hash_module=SHA512)
     return key
 
-def encrypt(secret, message, algorithm = 'AES', length = 256):
+def encrypt(secret, message, algorithm = 'AES', length = 256, salt = None):
     """
     The function encrypts a message using a specified algorithm and key length, and returns the
     algorithm, key length, salt, and encrypted text.
@@ -78,7 +90,8 @@ def encrypt(secret, message, algorithm = 'AES', length = 256):
     :return: a tuple containing the algorithm used for encryption, the length of the encryption key, the
     salt used for encryption, and the encrypted text.
     """
-    salt = get_random_bytes(16)
+    if not salt:
+        salt = get_random_bytes(16)
 
     if length == 256:
         key = compute_key(secret, salt)
@@ -91,14 +104,17 @@ def encrypt(secret, message, algorithm = 'AES', length = 256):
         return None
 
     if algorithm == 'AES':
-        encrypted_text = encrypt_aes(key, message)
+        if type(message) is bytes:
+            encrypted_text = encrypt_aes(key, message, True)
+        else:
+            encrypted_text = encrypt_aes(key, message)
     else:
         print(algorithm + ' is not supported as algorithm')
         return None
 
     return (algorithm, length, salt, encrypted_text)
 
-def decrypt(secret, algorithm, length, salt, ciphertext):
+def decrypt(secret, algorithm, length, salt, ciphertext, is_byte = False):
     """
     The function decrypts a ciphertext using a secret key and specified encryption algorithm and key
     length.
@@ -128,7 +144,7 @@ def decrypt(secret, algorithm, length, salt, ciphertext):
         return None
 
     if algorithm == 'AES':
-        decrypted_text = decrypt_aes(key, ciphertext)
+        decrypted_text = decrypt_aes(key, ciphertext, is_byte)
     else:
         print(algorithm + ' is not supported as algorithm')
         return None

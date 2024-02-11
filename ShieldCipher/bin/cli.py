@@ -50,7 +50,7 @@ def msc():
     print("                .====.    -++=:         =+==-    --==.                ")
     print("\n@milosnowcat\n")
 
-def encrypt(args, secret = None):
+def encrypt(args, secret = None, is_file = False, salt = None):
     """
     The `encrypt` function takes in a text and optional encryption options, encrypts the text using the
     ShieldCipher algorithm, and returns the encrypted text along with the algorithm, length, salt, and
@@ -87,20 +87,23 @@ def encrypt(args, secret = None):
         split = args[args.index("--split") + 1]
 
     if algorithm and length:
-        encrypted_text = sc_encrypt(secret, args[0], algorithm, int(length))
+        encrypted_text = sc_encrypt(secret, args[0], algorithm, int(length), salt=salt)
     elif algorithm:
-        encrypted_text = sc_encrypt(secret, args[0], algorithm)
+        encrypted_text = sc_encrypt(secret, args[0], algorithm, salt=salt)
     elif length:
-        encrypted_text = sc_encrypt(secret, args[0], length=int(length))
+        encrypted_text = sc_encrypt(secret, args[0], length=int(length), salt=salt)
     else:
-        encrypted_text = sc_encrypt(secret, args[0])
+        encrypted_text = sc_encrypt(secret, args[0], salt=salt)
 
-    encrypted_text_algorithm = encrypted_text[0]
-    encrypted_text_length = str(encrypted_text[1])
-    encrypted_text_salt = binascii.hexlify(encrypted_text[2]).decode('utf-8')
-    encrypted_text_msg = binascii.hexlify(encrypted_text[3]).decode('utf-8')
+    if is_file:
+        return encrypted_text[3]
+    else:
+        encrypted_text_algorithm = encrypted_text[0]
+        encrypted_text_length = str(encrypted_text[1])
+        encrypted_text_salt = binascii.hexlify(encrypted_text[2]).decode('utf-8')
+        encrypted_text_msg = binascii.hexlify(encrypted_text[3]).decode('utf-8')
 
-    return encrypted_text_algorithm + split + encrypted_text_length + split + encrypted_text_salt + split + encrypted_text_msg
+        return encrypted_text_algorithm + split + encrypted_text_length + split + encrypted_text_salt + split + encrypted_text_msg
 
 def encrypt_file(args):
     if not args:
@@ -117,17 +120,28 @@ def encrypt_file(args):
     encrypted_file_path = encrypted_file_name + '.MShieldCipher'
 
     with open(file_path, 'rb') as file:
-        file_content = binascii.hexlify(file.read()).decode('utf-8')
+        file_content = file.read()
 
     args[0] = file_content
-    encrypted_file_content = encrypt(args, secret)
 
-    with open(encrypted_file_path, 'w') as encrypted_file:
+    split = '$'
+
+    if "-s" in args:
+        split = args[args.index("-s") + 1]
+    elif "--split" in args:
+        split = args[args.index("--split") + 1]
+
+    encrypted = encrypted_file_name.split(split)
+    salt = binascii.unhexlify(encrypted[2].encode('utf-8'))
+
+    encrypted_file_content = encrypt(args, secret, True, salt)
+
+    with open(encrypted_file_path, 'wb') as encrypted_file:
         encrypted_file.write(encrypted_file_content)
 
     return f"File saved in {encrypted_file_path}"
 
-def decrypt(args, secret = None):
+def decrypt(args, secret = None, is_byte = False, args_file = None):
     """
     The `decrypt` function takes an encrypted text and decrypts it using the ShieldCipher algorithm.
     
@@ -155,9 +169,16 @@ def decrypt(args, secret = None):
     algorithm = encrypted[0]
     length = int(encrypted[1])
     salt = binascii.unhexlify(encrypted[2].encode('utf-8'))
-    hashed = binascii.unhexlify(encrypted[3].encode('utf-8'))
 
-    decrypted_text = sc_decrypt(secret, algorithm, length, salt, hashed)
+    if args_file:
+        encrypted[3] = args_file
+
+    if is_byte:
+        hashed = encrypted[3]
+    else:
+        hashed = binascii.unhexlify(encrypted[3].encode('utf-8'))
+
+    decrypted_text = sc_decrypt(secret, algorithm, length, salt, hashed, is_byte)
 
     return decrypted_text
 
@@ -173,14 +194,13 @@ def decrypt_file(args):
     args[0] = encrypted_file_name[:-14]
     decrypted_file_path = decrypt(args, secret)
 
-    with open(encrypted_file_path, 'r') as encrypted_file:
+    with open(encrypted_file_path, 'rb') as encrypted_file:
         encrypted_file_content = encrypted_file.read()
 
-    args[0] = encrypted_file_content
-    decrypted_file_content = decrypt(args, secret)
+    decrypted_file_content = decrypt(args, secret, True, encrypted_file_content)
 
     with open(decrypted_file_path, 'wb') as decrypted_file:
-        decrypted_file.write(binascii.unhexlify(decrypted_file_content))
+        decrypted_file.write(decrypted_file_content)
 
     return f"File saved in {decrypted_file_path}"
 
